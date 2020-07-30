@@ -400,7 +400,69 @@ function ajaxUpdateAlarm(url){
     var site = json.result[1].site;
     var alarm_code = json.result[1].alarm_code;
     
-    console.log(json.result[1]);
+    // 07.20 - TAS A/S 모두 알람 발생 시 알람 띄워주는 로직 추가
+    var Orig_json = JSON.parse(data);
+    var Orig_eventTime = Orig_json.result[1].eventTime;
+    var Orig_alarm_type = Orig_json.result[1].alarm_type;
+    var Orig_system_name = Orig_json.result[1].serverName;
+    var Orig_serverLocation = Orig_json.result[1].serverLocation;
+    var Orig_event = Orig_json.result[1].event;
+    var Orig_site = Orig_json.result[1].site;
+    var Orig_alarm_code = Orig_json.result[1].alarm_code;
+    
+    var index;
+    for(i=0; i<system_name.length; i++){
+    	if( Orig_system_name[i].indexOf("TAS") != -1 ){
+    		index = Orig_system_name.indexOf(Orig_system_name[i]);
+    		
+    		system_name.splice(index,1)
+    		eventTime.splice(index,1)
+    		alarm_type.splice(index,1)
+    		serverLocation.splice(index,1)
+    		event.splice(index,1)
+    		site.splice(index,1)
+    		alarm_code.splice(index,1)
+    	}
+    }
+    
+    Orig_system_name.forEach(function(e,index){
+		for(i=0; i<=Orig_system_name.length; i++){
+			if(index == i){
+				continue;	
+			}
+			if(Orig_alarm_code[index] == Orig_alarm_code[i] && Orig_system_name[index] == Orig_system_name[i]){
+				if( Orig_serverLocation[index].indexOf("IFM1A") != -1  && Orig_serverLocation[i].indexOf("IFM1B") != -1  ) {
+					console.log("IFM " + Orig_system_name[index], Orig_serverLocation[index], Orig_eventTime[index])
+					
+		    		system_name.push(Orig_system_name[index])
+		    		eventTime.push(Orig_eventTime[index])
+		    		alarm_type.push(Orig_alarm_type[index])
+		    		serverLocation.push(Orig_serverLocation[index])
+		    		event.push(Orig_event[index])
+		    		site.push(Orig_site[index])
+		    		alarm_code.push(Orig_alarm_code[index])
+		    		
+		    		console.log(system_name, serverLocation, eventTime)
+		    		
+				}else if(Orig_serverLocation[index].indexOf("SRPM1A")!= -1  && Orig_serverLocation[i].indexOf("SRPM1B")!= -1  ){
+					
+					system_name.push(Orig_system_name[index])
+		    		eventTime.push(Orig_eventTime[index])
+		    		alarm_type.push(Orig_alarm_type[index])
+		    		serverLocation.push(Orig_serverLocation[index])
+		    		event.push(Orig_event[index])
+		    		site.push(Orig_site[index])
+		    		alarm_code.push(Orig_alarm_code[index])
+		    		
+				}
+				else{
+					//console.log("TEST " + Orig_serverLocation[index], Orig_serverLocation[i], index, i)
+				}
+			}
+		}
+    });
+    
+    
     
     var statusClass = "";
     var statusText = "";
@@ -413,6 +475,8 @@ function ajaxUpdateAlarm(url){
 	
     
     eventTime.forEach(function(e,index){
+    	console.log(system_name, serverLocation)
+    	
     	var timeAddHtml = "<p class='skt-alarm-txt'>"+eventTime[index]+"</p>";
 	    var targetAddHtml = "<p class='skt-alarm-txt'>"+system_name[index]+"</p>";
 	    var locationAddHtml = "<p class='skt-alarm-txt'>"+serverLocation[index]+"</p>";
@@ -683,9 +747,6 @@ function ajaxInsertStatToAlarm(url){
 	var succ_rate = json.result[0].succ_rate;
 	var att = json.result[0].att;
 	
-    
-
-
   });
 }
 /** 2019.05.18 Customized setInterval function to execute the function before set setInterval action */
