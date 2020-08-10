@@ -3,46 +3,48 @@ extends admin-layout
 block content
 
   .container-fluid
-    .well.well-sm      
+    .well.well-sm  
       button#b-mme.btn.btn-default(type='button') MME
       button#b-sgw.btn.btn-default(type='button') SGW
       button#b-pgw.btn.btn-default(type='button') PGW
       button#b-mss.btn.btn-default(type='button') MSS
       button#b-tas.btn.btn-default(type='button') TAS
       button#b-hss.btn.btn-default(type='button') HSS
+      button#b-hss.btn.btn-default(type='button') HLR
+      button#b-hss.btn.btn-default(type='button') AUC
       button#b-EditTH.btn.btn-default(type='button') Threshold 변경
      
   // Start DB input lines
   .container-fluid#view-admin-tables  
-    #dev-table    
-      .well.well-sm    
-        table#dev-datatables(style='width:100%')
-          thead
-            tr
-              th 시스템명
-              th 시스템TYPE
-              th 국사명(SITE)
-              th 층(FLOOR)
-              th 상면
-              th 용량(SESSION)
-              th 용량(BPS)
-              th 최종 수정일(LAST_UPDATE)
-          tbody
-          
+    #pgw-table    
+      .well.well-sm
+        table#pgw-datatables(style='width:100%')
+    
+    #tas-table    
+      .well.well-sm
+        table#tas-datatables(style='width:100%')
+    
+    #mss-table    
+      .well.well-sm
+        table#mss-datatables(style='width:100%')
+    
     #threshold-table    
       .well.well-sm    
         table#threshold-datatables(style='width:100%')
           thead
             tr
               th SYSTEM
-              th Threshold_0
-              th Threshold_1
-              th Threshold_2
-              th Threshold_3
-              th Threshold_4
-              th Threshold_5
-              th Threshold_6
-              th Threshold_7
+              th Th_0
+              th Th_1
+              th Th_2
+              th Th_3
+              th Th_4
+              th Th_5
+              th Th_6
+              th Th_7
+              th Th_8
+              th Th_9
+              th Th_10
           tbody
           
   #DeleteModal-dev.modal.fade(role='dialog', tabindex='-1', aria-labelledby='ModalLabel', aria-hidden='true')
