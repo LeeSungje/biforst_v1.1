@@ -47,6 +47,77 @@ router.get('/pgw-info', function (req, res, next) {
 	)
 });
 
+router.get('/tas-info', function (req, res, next) {
+	/* API Send body */
+	var array_data = [];
+
+	var result;
+	var result_code = 1;
+	var result_msg = "success";
+
+	mysqlDB.query('SELECT SYSTEM_NAME, SYSTEM_TYPE, ZONE, LOCATION, BUILDING, FLOOR_PLAN, MAX_SUB, LAST_UPDATE FROM SYSTEM_INFO_TAS',
+		function (error, results, fields) {
+			if (error) {
+				console.log(error);
+			} else {
+				if (!results.length) json = {};
+				else {
+					results.forEach(result => {
+						var tas_data = {
+							SYSTEM_NAME: result.SYSTEM_NAME,
+							SYSTEM_TYPE: result.SYSTEM_TYPE,
+							ZONE: result.ZONE,
+							LOCATION: result.LOCATION,
+							BUILDING: result.BUILDING,
+							FLOOR_PLAN: result.FLOOR_PLAN,
+							MAX_SUB: result.MAX_SUB,
+							LAST_UPDATE: result.LAST_UPDATE
+						};
+						array_data.push(tas_data);
+					})
+				}
+				res.send(JSON.stringify(array_data));
+			};
+		}
+	)
+});
+
+router.get('/mss-info', function (req, res, next) {
+	/* API Send body */
+	var array_data = [];
+
+	var result;
+	var result_code = 1;
+	var result_msg = "success";
+
+	mysqlDB.query('SELECT SYSTEM_NAME, SYSTEM_TYPE, ZONE, LOCATION, BUILDING, FLOOR_PLAN, MAX_SESS, MAX_TPS, LAST_UPDATE FROM SYSTEM_INFO_MSS',
+		function (error, results, fields) {
+			if (error) {
+				console.log(error);
+			} else {
+				if (!results.length) json = {};
+				else {
+					results.forEach(result => {
+						var mss_data = {
+							SYSTEM_NAME: result.SYSTEM_NAME,
+							SYSTEM_TYPE: result.SYSTEM_TYPE,
+							ZONE: result.ZONE,
+							LOCATION: result.LOCATION,
+							BUILDING: result.BUILDING,
+							FLOOR_PLAN: result.FLOOR_PLAN,
+							MAX_SESS: result.MAX_SESS,
+							MAX_TPS: result.MAX_TPS,
+							LAST_UPDATE: result.LAST_UPDATE
+						};
+						array_data.push(mss_data);
+					})
+				}
+				res.send(JSON.stringify(array_data));
+			};
+		}
+	)
+});
+
 router.get('/th-info', function (req, res, next) {
 	/* API Send body */
 	var array_data = [];
@@ -55,7 +126,7 @@ router.get('/th-info', function (req, res, next) {
 	var result_code = 1;
 	var result_msg = "success";
 
-	mysqlDB.query('SELECT SYSTEM, SYSTEM_NAME, th0, th1, th2, th3, th4, th5, th6, th7 FROM THRESHOLD_LIST',
+	mysqlDB.query('SELECT SYSTEM, SYSTEM_NAME, th0, th1, th2, th3, th4, th5, th6, th7, th8, th9, th10 FROM THRESHOLD_LIST',
 		function (error, results, fields) {
 			if (error) {
 				console.log(error);
@@ -73,7 +144,10 @@ router.get('/th-info', function (req, res, next) {
 							TH4: result.th4,
 							TH5: result.th5,
 							TH6: result.th6,
-							TH7: result.th7
+							TH7: result.th7,
+							TH8: result.th8,
+							TH9: result.th9,
+							TH10: result.th10
 						};
 						array_data.push(th_data);
 					})
@@ -119,28 +193,53 @@ router.get('/siteinfo', function (req, res, next) {
 
 router.put('/deviceinfo', function (req, res, next) {
 	var system_name = getStrTypeToken(req.body.SYSTEM_NAME);
-
-	mysqlDB.query("SELECT SYSTEM_NAME FROM SYSTEM_INFO_PGW WHERE system_name=" + system_name,
-		function (error, results, fields) {
-			if (error) {
-				console.log(error);
-			} else {
-				var result_code = 1;
-				var result_msg = "success";
-				var result = {
-					result_code: result_code,
-					result_msg: result_msg
+	
+	if(system_name.includes("PGW")){
+		mysqlDB.query("SELECT SYSTEM_NAME FROM SYSTEM_INFO_PGW WHERE system_name=" + system_name,
+			function (error, results, fields) {
+				if (error) {
+					console.log(error);
+				} else {
+					var result_code = 1;
+					var result_msg = "success";
+					var result = {
+						result_code: result_code,
+						result_msg: result_msg
+					};
+					if(results == ""){
+						var query_result="0";
+					}
+					else{
+						var query_result="1";
+					}
+					res.send(query_result);
 				};
-				if(results == ""){
-					var query_result="0";
+			}
+		)
+	}	
+	if(system_name.includes("TAS")){
+		mysqlDB.query("SELECT SYSTEM_NAME FROM SYSTEM_INFO_TAS WHERE system_name=" + system_name,
+				function (error, results, fields) {
+					if (error) {
+						console.log(error);
+					} else {
+						var result_code = 1;
+						var result_msg = "success";
+						var result = {
+							result_code: result_code,
+							result_msg: result_msg
+						};
+						if(results == ""){
+							var query_result="0";
+						}
+						else{
+							var query_result="1";
+						}
+						res.send(query_result);
+					};
 				}
-				else{
-					var query_result="1";
-				}
-				res.send(query_result);
-			};
-		}
-	)
+			)
+	}
 })
 
 
@@ -166,6 +265,21 @@ router.put('/deviceinfo_s', function (req, res, next) {
 					result_msg: result_msg
 				};
 				res.send(result);
+				mysqlDB.query("INSERT INTO SYSTEM_INFO_TOTAL(system_name,system_type,location,building,floor_plan)" +
+						"VALUE(" + system_name + "," + system_type + "," + location + "," + building + "," + floor_plan+ ")",
+						function (error, results, fields) {
+							if (error) {
+								console.log(error);
+							} else {
+								var result_code = 1;
+								var result_msg = "success";
+								var result = {
+									result_code: result_code,
+									result_msg: result_msg
+								};
+							};
+						}
+					)
 			};
 		}
 	)
@@ -186,6 +300,20 @@ router.delete('/deviceinfo/:id', function (req, res, next) {
 					result_msg: result_msg
 				};
 				res.send(result);
+				mysqlDB.query('DELETE from SYSTEM_INFO_TOTAL where SYSTEM_NAME=' + getStrTypeToken(req.params.id),
+						function (error, results, fields) {
+							if (error) {
+								console.log(error);
+							} else {
+								var result_code = 1;
+								var result_msg = "success";
+								var result = {
+									result_code: result_code,
+									result_msg: result_msg
+								};
+							}
+						}
+					)
 			}
 		}
 	)
