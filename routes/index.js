@@ -145,6 +145,20 @@ router.get('/sgw-rm', function(req, res, next){
 	  
 });
 
+router.get('/mss-list', function(req, res, next){
+	  res.render('mss-list');
+});
+
+router.get('/mss-list/:system', function(req, res, next){
+	  res.render('mss-detail', { system: req.params.system});
+	  
+});
+
+router.get('/mss-rm', function(req, res, next){
+	  res.render('mss-rm');
+	  
+});
+
 
 /**
 router.get('/system-detail/:system', function(req, res, next){
