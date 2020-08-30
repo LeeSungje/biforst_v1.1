@@ -59,21 +59,21 @@ function ajaxShowSystemDetail(url){
 	    //fallback(1) Zone별 요약 정보
 	    var curACnt = json.result[1].curACnt;
 		var totACnt = json.result[1].totACnt;
-		var curASess = Math.round(json.result[1].curASess);
+		var curASess = (json.result[1].curASess/10000).toFixed(1);
 		var totASess = Math.round(json.result[1].totASess/10000);
 		var curATps = Math.round(json.result[1].curATps);
 		var totATps = Math.round(json.result[1].totATps);
 		
 		var curBCnt = json.result[2].curBCnt;
 		var totBCnt = json.result[2].totBCnt;
-		var curBSess = Math.round(json.result[2].curBSess);
+		var curBSess = (json.result[2].curBSess/10000).toFixed(1);
 		var totBSess = Math.round(json.result[2].totBSess/10000);
 		var curBTps = Math.round(json.result[2].curBTps);
 		var totBTps = Math.round(json.result[2].totBTps);
 		
 		var curBKCnt = json.result[3].curBKCnt;
 		var totBKCnt = json.result[3].totBKCnt;
-		var curBKSess = Math.round(json.result[3].curBKSess);
+		var curBKSess = (json.result[3].curBKSess/10000).toFixed(1);
 		var totBKSess = Math.round(json.result[3].totBKSess/10000);
 		var curBKTps = Math.round(json.result[3].curBKTps);
 		var totBKTps = Math.round(json.result[3].totBKTps);

@@ -158,6 +158,7 @@ function ajaxShowMSSDetail(url){
 	    });
 	    
 		$(".ims-container").find(".sys-txt-value").remove(); 
+		pause_audio();
 		$(".ims-stat-panel").removeClass("alarm-twinkle");
 		
 		pause_audio();

@@ -559,11 +559,14 @@ function ajaxUpdate5Gsystem(url){
   })
   .done(function(data){
     var json = JSON.parse(data);
+
+  //fallback(0)
     var curPGWCnt = json.result[0].curPGWCnt;
     var totPGWCnt = json.result[0].totPGWCnt;
     var curPGWSess = json.result[0].curPGWSess;
     var totPGWSess = json.result[0].totPGWSess;
     
+  //fallback(1)
     var curTASCnt = json.result[1].curTASCnt;
     var totTASCnt = json.result[1].totTASCnt;
     var curTASSub = json.result[1].curTASSub;
@@ -604,6 +607,18 @@ function ajaxUpdate5Gsystem(url){
     var totMECGWCnt = json.result[7].totMECGWCnt;
     var curMECGWSess = json.result[7].curMECGWSess;
     var totMECGWSess = json.result[7].totMECGWSess;
+
+    //fallback(8) SGW 정보
+    var curSGWCnt = json.result[8].curSGWCnt;
+    var totSGWCnt = json.result[8].totSGWCnt;
+    var curSGWSess = json.result[8].curSGWSess;
+    var totSGWSess = json.result[8].totSGWSess;
+
+    //fallback(9) MME 정보
+    var curMMECnt = json.result[9].curMMECnt;
+    var totMMECnt = json.result[9].totMMECnt;
+    var curMMESub = json.result[9].curMMESub;
+    var totMMESub = json.result[9].totMMESub;
     
     drawPieChart(curPGWCnt, totPGWCnt, "doughnut-chart"); //pgw
     drawPieChart(curTASCnt, totTASCnt, "doughnut-chart-tas"); 
@@ -709,6 +724,39 @@ function ajaxUpdate5Gsystem(url){
         $("#curMECGWSessContainer").append(curSessAddHtml);
         $("#totMECGWSessContainer").append(totSessAddHtml);
       });
+
+    totSGWCnt.forEach(function(e,index){
+        var curSGWCntAddHtml = "<span class='sys-txt-value'>"+curSGWCnt[index]+"</span>"; 
+        var totSGWCntAddHtml = "<span class='sys-txt-value'>"+totSGWCnt[index]+"</span>";
+        var curSessAddHtml = "<span class='sys-txt-value'>"+curSGWSess[index]+"</span>";
+        var totSessAddHtml = "<span class='sys-txt-value'>"+totSGWSess[index]+"</span>";
+        $("#curSGWCntContainer").append(curSGWCntAddHtml);
+        $("#totSGWCntContainer").append(totSGWCntAddHtml);
+        $("#curSGWSessContainer").append(curSessAddHtml);
+        $("#totSGWSessContainer").append(totSessAddHtml);
+      });
+    
+    totMMECnt.forEach(function(e,index){
+        var curMMECntAddHtml = "<span class='sys-txt-value'>"+curMMECnt[index]+"</span>"; 
+        var totMMECntAddHtml = "<span class='sys-txt-value'>"+totMMECnt[index]+"</span>";
+        var curSubAddHtml = "<span class='sys-txt-value'>"+curMMESub[index]+"</span>";
+        var totSubAddHtml = "<span class='sys-txt-value'>"+totMMESub[index]+"</span>";
+        $("#curMMECntContainer").append(curMMECntAddHtml);
+        $("#totMMECntContainer").append(totMMECntAddHtml);
+        $("#curMMESubContainer").append(curSubAddHtml);
+        $("#totMMESubContainer").append(totSubAddHtml);
+      });
+  });
+}
+
+/** 3일전 stat data 지우기 */
+function ajaxDeleteStat(url){
+  $.ajax({
+    url: url,
+    type: "GET"
+  })
+  .done(function(data){
+
   });
 }
 
@@ -944,6 +992,7 @@ function executeSetInterval(func, delay){
 	  ajaxInsertStatToAlarm("/api/v1/stats");
 	  ajaxUpdate5Gsystem("/api/v1/5Gsystem?");
 	  ajaxUpdateCenterStatus("/api/v1/map");
+	  ajaxDeleteStat("/api/v1/deleteStat");
   }, _PERIOD_);
 
   /** periodic twinkle functions -JJ- */
