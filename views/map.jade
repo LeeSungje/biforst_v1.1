@@ -1030,31 +1030,31 @@ block content
             .col-xs-1#LTE_title 
               .skt-sysgrp-ttl-eng LTE
             .col-xs-11#LTE_sysgrp
-              .col-xs-4#LTE_MME.sys-container 
-                .col-xs-6#LTE_MME_stat
+              .col-xs-4#LTE_MME.sys-container.a(onclick='location.href="/mme-list"')  
+                .col-xs-6#LTE_MME_stat.sysgroup-click
                   .skt-sys-ttl MME
-                  span#curMMECntContainer 10
+                  span#curMMECntContainer
                   span.sys-txt-delimiter &nbsp/&nbsp
-                  span#totMMECntContainer 10
+                  span#totMMECntContainer
                   span.sys-txt-delimiter 식
                   p.sys-txt-delimiter 
-                  span#curMMESesContainer 785
+                  span#curMMESubContainer
                   span.sys-txt-delimiter &nbsp/&nbsp
-                  span#totMMESesContainer 800
+                  span#totMMESubContainer
                   span.sys-txt-delimiter 만
                 .col-xs-6#LTE_MME_pie
                   canvas#doughnut-chart3.sysPIE-chart          
-              .col-xs-4#LTE_SGW.sys-container 
-                .col-xs-6#LTE_SGW_stat
+              .col-xs-4#LTE_SGW.sys-container.a(onclick='location.href="/sgw-list"') 
+                .col-xs-6#LTE_SGW_stat.sysgroup-click
                   .skt-sys-ttl SGW
-                  span#curSGWCntContainer 23
+                  span#curSGWCntContainer
                   span.sys-txt-delimiter &nbsp/&nbsp
-                  span#totSGWCntContainer 23
+                  span#totSGWCntContainer
                   span.sys-txt-delimiter 식
                   p.sys-txt-delimiter 
-                  span#curSGWSesContainer 751
+                  span#curSGWSessContainer
                   span.sys-txt-delimiter &nbsp/&nbsp
-                  span#totSGWSesContainer 800
+                  span#totSGWSessContainer
                   span.sys-txt-delimiter 만
                 .col-xs-6#LTE_SGW_pie
                   canvas#doughnut-chart4.sysPIE-chart     
