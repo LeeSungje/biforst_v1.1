@@ -598,6 +598,72 @@ router.get('/v1/Uncollected', function(req, res, next) {
 			      		callback(null,json);
 			      	}
 			  });
+		  },
+
+		//fallback(8), MECGW 정보 전송
+		  function(callback){
+			  var system_name_MECGW = [];
+			  var system_type_MECGW = [];
+			  var location_MECGW = [];
+			  var building_MECGW = [];
+			  var floor_MECGW = [];
+				
+				
+			  mysqlDB.query('select system_name, system_type, location, building, floor_plan from system_info_total where system_name like \'%MECGW%\' and system_name not in (select distinct system_name from mecgw_stat_list where date >= \''+ getPrev10mDate() + '\' and time >= \''+ getPrev10mTime() + '\' )',
+				  function(error, results, fields) {
+				  	if (error) {
+			      		console.log(error);
+			      	} else {
+			      		results.forEach(function(e) {
+			      			system_name_MECGW.push(e.system_name);
+			      			system_type_MECGW.push(e.system_type);
+			      			location_MECGW.push(e.location);
+			      			building_MECGW.push(e.building);
+							floor_MECGW.push(e.floor_plan);
+			      		});
+			      		var json = {
+			      				system_name_MECGW : system_name_MECGW,	
+			      				system_type_MECGW: system_type_MECGW,
+			      				location_MECGW : location_MECGW,
+			      				building_MECGW: building_MECGW,
+								floor_MECGW: floor_MECGW
+			      		}
+			      		callback(null,json);
+			      	}
+			  });
+		  },
+
+		//fallback(9), MSS 정보 전송
+		  function(callback){
+			  var system_name_MSS = [];
+			  var system_type_MSS = [];
+			  var location_MSS = [];
+			  var building_MSS = [];
+			  var floor_MSS = [];
+				
+				
+			  mysqlDB.query('select system_name, system_type, location, building, floor_plan from system_info_total where system_name like \'%MSS%\' and system_name not in (select distinct system_name from mss_stat_list where date >= \''+ getPrev10mDate() + '\' and time >= \''+ getPrev10mTime() + '\' )',
+				  function(error, results, fields) {
+				  	if (error) {
+			      		console.log(error);
+			      	} else {
+			      		results.forEach(function(e) {
+			      			system_name_MSS.push(e.system_name);
+			      			system_type_MSS.push(e.system_type);
+			      			location_MSS.push(e.location);
+			      			building_MSS.push(e.building);
+							floor_MSS.push(e.floor_plan);
+			      		});
+			      		var json = {
+			      				system_name_MSS : system_name_MSS,	
+			      				system_type_MSS: system_type_MSS,
+			      				location_MSS : location_MSS,
+			      				building_MSS: building_MSS,
+								floor_MSS: floor_MSS
+			      		}
+			      		callback(null,json);
+			      	}
+			  });
 		  }
 		 ],
 	  function(err,results){
@@ -1545,7 +1611,7 @@ router.get('/v1/stats', function(req, res, next) {
 				      			succ_rate.push(e.succ_rate);
 				      			att.push(e.att);
 				      		});
-				      		mysqlDB.query('select system, th0, th1, th2, th3, th4, th5, th6, th7 from threshold_list where system like \'%mss\';',
+				      		mysqlDB.query('select system, th0, th1, th2, th3, th4, th5, th6, th7 from threshold_list where system like \'%MSS\';',
 									  function(error, results, fields) {
 									  	if (error) {
 								      		console.log(error);
@@ -1567,7 +1633,7 @@ router.get('/v1/stats', function(req, res, next) {
 							      			
 							      			system_name.forEach(function(e,index) {
 						      					switch(type[index]){
-													case "REGI" : 
+													case "REG" : 
 														if(Number(succ_rate[index]) < Number(th0[index]) && Number(att[index]) > Number(th4[index])){
 									        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "REGI","Success Rate : "+succ_rate[index]];
 							  	       	         			  mysqlDB.query(sql_insert, params,
@@ -1654,7 +1720,7 @@ router.get('/v1/stats', function(req, res, next) {
 							      								system_name.forEach(function(e,index_s){
 							      									if(clear_sysname[index_c] == system_name[index_s] && clear_date[index_c] <= date[index_s] && clear_time[index_c] <= time[index_s]){
 												      					switch(clear_almcode[index_c]){
-																			case "REGI" : 
+																			case "REG" : 
 																				if(Number(succ_rate[index_s]) > Number(th0[index]) && Number(att[index_s]) > Number(th4[index])){
 																					  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
 													  	       	         			  mysqlDB.query(sql_clear, params,
@@ -1694,6 +1760,2370 @@ router.get('/v1/stats', function(req, res, next) {
 																				}
 																				break;
 							      										}
+																	}
+																	
+							      								})
+											      				
+											      			});
+							      					}else{
+							      						//alarm_list 테이블에 값 없을 시(통계로인한 장애 상황이 아닐 시)
+							      					}
+							      			})
+								      	}
+									  	
+							});
+				      	}
+					  	callback(null,system_name);
+				  });
+
+		},
+		// HSS
+		function(callback){ 
+			  var system_name = [];
+			  var system_type = [];
+			  var date = [];
+			  var time = [];
+			  var type = [];
+			  var succ_rate = [];
+			  var att = [];
+			  
+			  var system = [];
+			  var th0 = [];
+			  var th1 = [];
+			  var th2 = [];
+			  var th3 = [];
+			  var th4 = [];
+			  var th5 = [];
+			  var th6 = [];
+			  var th7 = [];
+			  
+			  var A_th0, A_th1, A_th2, A_th3, A_th4, A_th5, A_th6, A_th7;
+    		  var S_th0, S_th1, S_th2, S_th3, S_th4, S_th5, S_th6, S_th7;
+    		  var BK_th0, BK_th1, BK_th2, BK_th3, BK_th4, BK_th5, BK_th6, BK_th7;
+    		  
+    		  var clear_sysname=[], clear_date=[], clear_time=[], clear_systype=[], clear_almcode=[], clear_almtype=[];
+    		  
+    		   
+			
+			  mysqlDB.query('select hss_stat_list.system_name, system_info_hss.system_type, hss_stat_list.date, hss_stat_list.time, hss_stat_list.type, hss_stat_list.succ_rate, hss_stat_list.att from hss_stat_list, system_info_hss where hss_stat_list.system_name = system_info_hss.system_name and hss_stat_list.stat_mask=\'N\' and hss_stat_list.date >= \''+ getPrevDate() + '\' and hss_stat_list.time >= \''+ getPrevTime() + '\';',
+					  function(error, results, fields) {
+					  	if (error) {
+				      		console.log(error);
+				      	} else {
+				      		results.forEach(function(e) {
+				      			system_name.push(e.system_name);
+				      			system_type.push(e.system_type);
+				      			date.push(e.date);
+				      			time.push(e.time);
+				      			type.push(e.type);
+				      			succ_rate.push(Number(e.succ_rate));
+				      			att.push(Number(e.att));
+				      		});
+				      		mysqlDB.query('select system, th0, th1, th2, th3, th4, th5, th6, th7 from threshold_list where system like \'%HSS\';',
+									  function(error, results, fields) {
+									  	if (error) {
+								      		console.log(error);
+								      	} else {
+								      		results.forEach(function(e) {
+								      			system.push(e.system);
+								      			th0.push(e.th0);
+								      			th1.push(e.th1);
+								      			th2.push(e.th2);
+								      			th3.push(e.th3);
+								      			th4.push(e.th4);
+								      			th5.push(e.th5);
+								      			th6.push(e.th6);
+								      			th7.push(e.th7);
+								      			
+								      		    system.forEach(function(e,index){
+											    	if(system[index] == "AHSS"){
+											    		A_th0 = th0[index];
+											    		A_th1 = th1[index];
+											    		A_th2 = th2[index];
+											    		A_th3 = th3[index];
+											    		A_th4 = th4[index];
+											    		A_th5 = th5[index];
+											    		A_th6 = th6[index];
+											    		A_th7 = th7[index];
+											    	}
+											    	else if(system[index] == "SHSS"){
+											    		S_th0 = th0[index];
+											    		S_th1 = th1[index];
+											    		S_th2 = th2[index];
+											    		S_th3 = th3[index];
+											    		S_th4 = th4[index];
+											    		S_th5 = th5[index];
+											    		S_th6 = th6[index];
+											    		S_th7 = th7[index];
+											    	}
+											    	else if(system[index] == "BKHSS"){
+											    		BK_th0 = th0[index];
+											    		BK_th1 = th1[index];
+											    		BK_th2 = th2[index];
+											    		BK_th3 = th3[index];
+											    		BK_th4 = th4[index];
+											    		BK_th5 = th5[index];
+											    		BK_th6 = th6[index];
+											    		BK_th7 = th7[index];
+								      		    	}
+								      		    });
+								      		});
+							      			var sql_insert = 'INSERT INTO alarm_list VALUE (?,?,?,?,?,?,?,\'N\');'
+							      			var sql_update = 'UPDATE hss_stat_list SET stat_mask=\'Y\' WHERE date=? and time=? and system_name=? and type=? and succ_rate=? and att=?'
+							      			
+							      			
+							      			system_name.forEach(function(e,index) {
+							      				if(system_type[index] == "A"){
+							      					switch(type[index]){
+														case "UAR" : 
+															if(Number(succ_rate[index]) < Number(A_th0) && Number(att[index]) > Number(A_th4)){
+										        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "UAR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("UAR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}													
+															break;
+														case "MAR" : 
+															if(Number(succ_rate[index]) < Number(A_th1) && Number(att[index]) > Number(A_th5)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "MAR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("MAR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "SAR" : 
+															if(Number(succ_rate[index]) < Number(A_th2) && Number(att[index]) > Number(A_th6)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "SAR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("SAR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "LIR" : 
+															if(Number(succ_rate[index]) < Number(A_th3) && Number(att[index]) > Number(A_th7)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "LIR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("LIR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+													}
+												}
+												if(system_type[index] == "S"){ 
+													//Standby
+													switch(type[index]){
+														case "UAR" : 
+															if(Number(succ_rate[index]) < Number(S_th0) && Number(att[index]) > Number(S_th4)){
+										        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "UAR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("UAR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}													
+															break;
+														case "MAR" : 
+															if(Number(succ_rate[index]) < Number(S_th1) && Number(att[index]) > Number(S_th5)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "MAR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("MAR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "SAR" : 
+															if(Number(succ_rate[index]) < Number(S_th2) && Number(att[index]) > Number(S_th6)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "SAR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("SAR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "LIR" : 
+															if(Number(succ_rate[index]) < Number(S_th3) && Number(att[index]) > Number(S_th7)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "LIR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("LIR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+													}
+												}
+												if(system_type[index] == "BK"){ 
+													//Backup
+													switch(type[index]){
+														case "UAR" : 
+															if(Number(succ_rate[index]) < Number(BK_th0) && Number(att[index]) > Number(BK_th4)){
+										        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "UAR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("UAR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}													
+															break;
+														case "MAR" : 
+															if(Number(succ_rate[index]) < Number(BK_th1) && Number(att[index]) > Number(BK_th5)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "MAR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("MAR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "SAR" : 
+															if(Number(succ_rate[index]) < Number(BK_th2) && Number(att[index]) > Number(BK_th6)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "SAR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("SAR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "LIR" : 
+															if(Number(succ_rate[index]) < Number(BK_th3) && Number(att[index]) > Number(BK_th7)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "LIR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("LIR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+													}
+												}
+							      			});
+								      		//callback(null,json);
+							      			/**통계 Clear logic */
+							      			var sql_search_stat = 'select alarm_list.date,alarm_list.time,alarm_list.system_name,system_info_hss.system_type, alarm_code, alarm_type from alarm_list, system_info_hss where alarm_list.system_name = system_info_hss.system_name and alarm_mask=\'N\' and alarm_type=\'STAT\';';
+							      			var sql_clear = 'UPDATE alarm_list SET alarm_mask=\'Y\' where date=? and time=? and system_name=? and alarm_code=?';
+							      					
+							      			mysqlDB.query(sql_search_stat,
+							      					function(error, results, fields){
+							      						if(results != ""){
+							      							console.log(results);
+							      							results.forEach(function(e) {
+							      								clear_sysname.push(e.system_name);
+							      								clear_date.push(e.date);
+							      								clear_time.push(e.time);
+							      								clear_systype.push(e.system_type);
+							      								clear_almcode.push(e.alarm_code);
+							      								clear_almtype.push(e.alarm_type);
+							      							});
+							      							
+							      							clear_sysname.forEach(function(e,index_c) {
+							      								system_name.forEach(function(e,index_s){
+							      									if(clear_sysname[index_c] == system_name[index_s] && clear_date[index_c] <= date[index_s] && clear_time[index_c] <= time[index_s]){
+							      										if(clear_systype[index_c] =='A'){
+													      					switch(clear_almcode[index_c]){
+																				case "UAR" : 
+																					if(Number(succ_rate[index_s]) > Number(A_th0) && Number(att[index_s]) > Number(A_th4)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "MAR" : 
+																					if(Number(succ_rate[index_s]) > Number(A_th1) && Number(att[index_s]) > Number(A_th5)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "SAR" : 
+																					if(Number(succ_rate[index_s]) > Number(A_th2) && Number(att[index_s]) > Number(A_th6)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "LIR" : 
+																					if(Number(succ_rate[index_s]) > Number(A_th3) && Number(att[index_s]) > Number(A_th7)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																			}
+							      										}
+							      										if(clear_systype[index_c] == "S"){
+							      											switch(clear_almcode[index_c]){
+																				case "UAR" : 
+																					if(Number(succ_rate[index_s]) > Number(S_th0) && Number(att[index_s]) > Number(S_th4)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "MAR" : 
+																					if(Number(succ_rate[index_s]) > Number(S_th1) && Number(att[index_s]) > Number(S_th5)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "SAR" : 
+																					if(Number(succ_rate[index_s]) > Number(S_th2) && Number(att[index_s]) > Number(S_th6)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "LIR" : 
+																					if(Number(succ_rate[index_s]) > Number(S_th3) && Number(att[index_s]) > Number(S_th7)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																			}
+																		}
+							      										if(clear_systype[index_c] == "BK"){
+							      											switch(clear_almcode[index_c]){
+																				case "UAR" : 
+																					if(Number(succ_rate[index_s]) > Number(BK_th0) && Number(att[index_s]) > Number(BK_th4)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "MAR" : 
+																					if(Number(succ_rate[index_s]) > Number(BK_th1) && Number(att[index_s]) > Number(BK_th5)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "SAR" : 
+																					if(Number(succ_rate[index_s]) > Number(BK_th2) && Number(att[index_s]) > Number(BK_th6)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "LIR" : 
+																					if(Number(succ_rate[index_s]) > Number(BK_th3) && Number(att[index_s]) > Number(BK_th7)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																			}
+																		}
+																		
+																	}
+																	
+							      								})
+											      				
+											      			});
+							      					}else{
+							      						//alarm_list 테이블에 값 없을 시(통계로인한 장애 상황이 아닐 시)
+							      					}
+							      			})
+								      	}
+									  	
+							});
+				      	}
+					  	callback(null,system_name);
+				  });
+
+		},
+		// HLRCS
+		function(callback){ 
+			  var system_name = [];
+			  var system_type = [];
+			  var date = [];
+			  var time = [];
+			  var type = [];
+			  var succ_rate = [];
+			  var att = [];
+			  
+			  var system = [];
+			  var th0 = [];
+			  var th1 = [];
+			  
+			  var A_th0, A_th1;
+    		  var BK_th0, BK_th1;
+    		  
+    		  var clear_sysname=[], clear_date=[], clear_time=[], clear_systype=[], clear_almcode=[], clear_almtype=[];
+    		  
+    		   
+			
+			  mysqlDB.query('select hlr_stat_list.system_name, system_info_hlr.system_type, hlr_stat_list.date, hlr_stat_list.time, hlr_stat_list.type, hlr_stat_list.succ_rate, hlr_stat_list.att from hlr_stat_list, system_info_hlr where hlr_stat_list.system_name = system_info_hlr.system_name and hlr_stat_list.stat_mask=\'N\' and hlr_stat_list.date >= \''+ getPrevDate() + '\' and hlr_stat_list.time >= \''+ getPrevTime() + '\';',
+					  function(error, results, fields) {
+					  	if (error) {
+				      		console.log(error);
+				      	} else {
+				      		results.forEach(function(e) {
+				      			system_name.push(e.system_name);
+				      			system_type.push(e.system_type);
+				      			date.push(e.date);
+				      			time.push(e.time);
+				      			type.push(e.type);
+				      			succ_rate.push(Number(e.succ_rate));
+				      			att.push(Number(e.att));
+				      		});
+				      		mysqlDB.query('select system, th0, th1 from threshold_list where system like \'%HLRCS\';',
+									  function(error, results, fields) {
+									  	if (error) {
+								      		console.log(error);
+								      	} else {
+								      		results.forEach(function(e) {
+								      			system.push(e.system);
+								      			th0.push(e.th0);
+								      			th1.push(e.th1);
+								      			
+								      		    system.forEach(function(e,index){
+											    	if(system[index] == "AHLRCS"){
+											    		A_th0 = th0[index];
+											    		A_th1 = th1[index];
+											    	}
+											    	else if(system[index] == "BKHLRCS"){
+											    		BK_th0 = th0[index];
+											    		BK_th1 = th1[index];
+								      		    	}
+								      		    });
+								      		});
+							      			var sql_insert = 'INSERT INTO alarm_list VALUE (?,?,?,?,?,?,?,\'N\');'
+							      			var sql_update = 'UPDATE hlr_stat_list SET stat_mask=\'Y\' WHERE date=? and time=? and system_name=? and type=? and succ_rate=? and att=?'
+							      			
+							      			
+							      			system_name.forEach(function(e,index) {
+							      				if(system_type[index] == "A"){
+							      					switch(type[index]){
+														case "TMOUT" : 
+															if(Number(succ_rate[index]) > Number(A_th0) && Number(att[index]) > Number(A_th1)){
+										        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "TMOUT","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("TMOUT 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}													
+															break;
+													}
+												}
+												if(system_type[index] == "BK"){
+							      					switch(type[index]){
+														case "TMOUT" : 
+															if(Number(succ_rate[index]) > Number(BK_th0) && Number(att[index]) > Number(BK_th1)){
+										        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "TMOUT","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("TMOUT 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}													
+															break;
+													}
+												}
+							      			});
+				
+								      		//callback(null,json);
+							      			/**통계 Clear logic */
+							      			var sql_search_stat = 'select alarm_list.date,alarm_list.time,alarm_list.system_name,system_info_hlr.system_type, alarm_code, alarm_type from alarm_list, system_info_hlr where alarm_list.system_name = system_info_hlr.system_name and alarm_mask=\'N\' and alarm_type=\'STAT\';';
+							      			var sql_clear = 'UPDATE alarm_list SET alarm_mask=\'Y\' where date=? and time=? and system_name=? and alarm_code=?';
+							      					
+							      			mysqlDB.query(sql_search_stat,
+							      					function(error, results, fields){
+							      						if(results != ""){
+							      							console.log(results);
+							      							results.forEach(function(e) {
+							      								clear_sysname.push(e.system_name);
+							      								clear_date.push(e.date);
+							      								clear_time.push(e.time);
+							      								clear_systype.push(e.system_type);
+							      								clear_almcode.push(e.alarm_code);
+							      								clear_almtype.push(e.alarm_type);
+							      							});
+							      							
+							      							clear_sysname.forEach(function(e,index_c) {
+							      								system_name.forEach(function(e,index_s){
+							      									if(clear_sysname[index_c] == system_name[index_s] && clear_date[index_c] <= date[index_s] && clear_time[index_c] <= time[index_s]){
+							      										if(clear_systype[index_c] =='A'){
+													      					switch(clear_almcode[index_c]){
+																				case "TMOUT" : 
+																					if(Number(succ_rate[index_s]) > Number(A_th0) && Number(att[index_s]) < Number(A_th1)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																			}
+							      										}
+							      										if(clear_systype[index_c] =='BK'){
+													      					switch(clear_almcode[index_c]){
+																				case "TMOUT" : 
+																					if(Number(succ_rate[index_s]) > Number(BK_th0) && Number(att[index_s]) < Number(BK_th1)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																			}
+							      										}
+																	}
+																	
+							      								})
+											      				
+											      			});
+							      					}else{
+							      						//alarm_list 테이블에 값 없을 시(통계로인한 장애 상황이 아닐 시)
+							      					}
+							      			})
+								      	}
+									  	
+							});
+				      	}
+					  	callback(null,system_name);
+				  });
+
+		},
+		// AUC
+		function(callback){ 
+			  var system_name = [];
+			  var auc_num = [];
+			  var system_type = [];
+			  var date = [];
+			  var time = [];
+			  var type = [];
+			  var succ_rate = [];
+			  var att = [];
+			  
+			  var system = [];
+			  var th0 = [];
+			  var th1 = [];
+			  var th2 = [];
+			  var th3 = [];
+			  var th4 = [];
+			  var th5 = [];
+			  var th6 = [];
+			  var th7 = [];
+			  
+			  var A21_th0, A21_th1, A21_th4, A21_th5;
+			  var A22_th0, A22_th1, A22_th4, A22_th5;
+			  var A25_th0, A25_th1, A25_th4, A25_th5;
+    		  
+    		  var clear_sysname=[], clear_auc_num=[], clear_date=[], clear_time=[], clear_systype=[], clear_almcode=[], clear_almtype=[];
+    		  
+    		   
+			
+			  mysqlDB.query('select auc_stat_list.system_name, substring(auc_stat_list.system_name,4,2) AS auc_num, system_info_auc.system_type, auc_stat_list.date, auc_stat_list.time, auc_stat_list.type, auc_stat_list.succ_rate, auc_stat_list.att from auc_stat_list, system_info_auc where auc_stat_list.system_name = system_info_auc.system_name and auc_stat_list.stat_mask=\'N\' and auc_stat_list.date >= \''+ getPrevDate() + '\' and auc_stat_list.time >= \''+ getPrevTime() + '\';',
+					  function(error, results, fields) {
+					  	if (error) {
+				      		console.log(error);
+				      	} else {
+				      		results.forEach(function(e) {
+				      			system_name.push(e.system_name);
+				      			auc_num.push(e.auc_num);
+				      			system_type.push(e.system_type);
+				      			date.push(e.date);
+				      			time.push(e.time);
+				      			type.push(e.type);
+				      			succ_rate.push(Number(e.succ_rate));
+				      			att.push(Number(e.att));
+				      		});
+				      		mysqlDB.query('select system, th0, th1, th2, th3, th4, th5 from threshold_list where system like \'%AUC\';',
+									  function(error, results, fields) {
+									  	if (error) {
+								      		console.log(error);
+								      	} else {
+								      		results.forEach(function(e) {
+								      			system.push(e.system);
+								      			th0.push(e.th0);
+								      			th1.push(e.th1);
+								      			th2.push(e.th2); 
+								      			th3.push(e.th3);
+								      			th4.push(e.th4);
+								      			th5.push(e.th5);
+				
+								      			A21_th0= th0[index];
+								      			A21_th1= th1[index];
+								      			A21_th4= th4[index];
+								      			A21_th5= th5[index];
+					
+								      			A22_th2= th2[index]; //--> AUC22는 임계치 값 높아서 AUC21과 다른 값 가져옴
+								      			A22_th3= th3[index];
+								      			A22_th4= th4[index];
+								      			A22_th5= th5[index];
+					
+								      			A25_th0= th0[index];
+								      			A25_th1= th1[index];
+								      			A25_th4= th4[index];
+								      			A25_th5= th5[index];
+										
+								      			
+								      		});
+							      			var sql_insert = 'INSERT INTO alarm_list VALUE (?,?,?,?,?,?,?,\'N\');'
+							      			var sql_update = 'UPDATE auc_stat_list SET stat_mask=\'Y\' WHERE date=? and time=? and system_name=? and type=? and succ_rate=? and att=?'
+							      			
+							      			
+							      			system_name.forEach(function(e,index) {
+							      				if(auc_num[index] == "21"){
+							      					switch(type[index]){
+														case "DAI" : 
+															if(Number(succ_rate[index]) < Number(A21_th0) && Number(att[index]) > Number(A21_th4)){
+										        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "DAI","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("DAI 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}													
+															break;
+														case "SAI" : 
+															if(Number(succ_rate[index]) < Number(A21_th1) && Number(att[index]) > Number(A21_th5)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "SAI","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("SAI 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+													}
+												}
+							      				if(auc_num[index] == "22"){
+							      					switch(type[index]){
+														case "DAI" : 
+															if(Number(succ_rate[index]) < Number(A22_th2) && Number(att[index]) > Number(A22_th4)){
+										        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "DAI","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("DAI 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}													
+															break;
+														case "SAI" : 
+															if(Number(succ_rate[index]) < Number(A22_th3) && Number(att[index]) > Number(A22_th5)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "SAI","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("SAI 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+													}
+												}
+												
+							      				if(auc_num[index] == "25"){
+							      					switch(type[index]){
+														case "DAI" : 
+															if(Number(succ_rate[index]) < Number(A25_th0) && Number(att[index]) > Number(A25_th4)){
+										        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "DAI","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("DAI 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}													
+															break;
+														case "SAI" : 
+															if(Number(succ_rate[index]) < Number(A25_th1) && Number(att[index]) > Number(A25_th5)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "SAI","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("SAI 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+													}
+												}
+							      			});
+								      		//callback(null,json);
+							      			/**통계 Clear logic */
+							      			var sql_search_stat = 'select alarm_list.date,alarm_list.time,alarm_list.system_name, substring(alarm_list.system_name,4,2) AS auc_num, system_info_auc.system_type, alarm_code, alarm_type from alarm_list, system_info_auc where alarm_list.system_name = system_info_auc.system_name and alarm_mask=\'N\' and alarm_type=\'STAT\';';
+							      			var sql_clear = 'UPDATE alarm_list SET alarm_mask=\'Y\' where date=? and time=? and system_name=? and alarm_code=?';
+							      					
+							      			mysqlDB.query(sql_search_stat,
+							      					function(error, results, fields){
+							      						if(results != ""){
+							      							console.log(results);
+							      							results.forEach(function(e) {
+							      								clear_sysname.push(e.system_name);
+																clear_auc_num.push(e.auc_num);
+							      								clear_date.push(e.date);
+							      								clear_time.push(e.time);
+							      								clear_systype.push(e.system_type);
+							      								clear_almcode.push(e.alarm_code);
+							      								clear_almtype.push(e.alarm_type);
+							      							});
+							      							
+							      							clear_sysname.forEach(function(e,index_c) {
+							      								system_name.forEach(function(e,index_s){
+							      									if(clear_sysname[index_c] == system_name[index_s] && clear_date[index_c] <= date[index_s] && clear_time[index_c] <= time[index_s]){
+							      										if(clear_auc_num[index_c] =='21'){
+													      					switch(clear_almcode[index_c]){
+																				case "DAI" : 
+																					if(Number(succ_rate[index_s]) > Number(A21_th0) && Number(att[index_s]) > Number(A21_th4)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "SAI" : 
+																					if(Number(succ_rate[index_s]) > Number(A21_th1) && Number(att[index_s]) > Number(A21_th5)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																			}
+							      										}
+							      										if(clear_auc_num[index_c] =='22'){
+							      											switch(clear_almcode[index_c]){
+																				case "DAI" : 
+																					if(Number(succ_rate[index_s]) > Number(A22_th2) && Number(att[index_s]) > Number(A22_th4)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "SAI" : 
+																					if(Number(succ_rate[index_s]) > Number(A22_th3) && Number(att[index_s]) > Number(A22_th5)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																			}
+																		}
+							      										if(clear_auc_num[index_c] =='25'){
+													      					switch(clear_almcode[index_c]){
+																				case "DAI" : 
+																					if(Number(succ_rate[index_s]) > Number(A25_th0) && Number(att[index_s]) > Number(A25_th4)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "SAI" : 
+																					if(Number(succ_rate[index_s]) > Number(A25_th1) && Number(att[index_s]) > Number(A25_th5)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																			}
+							      										}
+																		
+																	}
+																	
+							      								})
+											      				
+											      			});
+							      					}else{
+							      						//alarm_list 테이블에 값 없을 시(통계로인한 장애 상황이 아닐 시)
+							      					}
+							      			})
+								      	}
+									  	
+							});
+				      	}
+					  	callback(null,system_name);
+				  });
+
+		},
+		// SGW
+		function(callback){ 
+			  var system_name = [];
+			  var system_type = [];
+			  var date = [];
+			  var time = [];
+			  var type = [];
+			  var succ_rate = [];
+			  var att = [];
+			  
+			  var system = [];
+			  var th0 = [];
+			  var th1 = [];
+			  var th2 = [];
+			  var th3 = [];
+			  var th4 = [];
+			  var th5 = [];
+			  var th6 = [];
+			  var th7 = [];
+			  
+			  var L_th0, L_th1, L_th2, L_th3;
+			  var S_th0, S_th1, S_th2, S_th3;
+			  var V_th0, V_th1, V_th2, V_th3;
+    		  
+    		   
+			
+			  mysqlDB.query('select sgw_stat_list.system_name, system_info_sgw.system_type, sgw_stat_list.date, sgw_stat_list.time, sgw_stat_list.type, sgw_stat_list.succ_rate, sgw_stat_list.att from sgw_stat_list, system_info_sgw where sgw_stat_list.system_name = system_info_sgw.system_name and sgw_stat_list.stat_mask=\'N\' and sgw_stat_list.date >= \''+ getPrevDate() + '\' and sgw_stat_list.time >= \''+ getPrevTime() + '\';',
+					  function(error, results, fields) {
+					  	if (error) {
+				      		console.log(error);
+				      	} else {
+				      		results.forEach(function(e) {
+				      			system_name.push(e.system_name);
+				      			system_type.push(e.system_type);
+				      			date.push(e.date);
+				      			time.push(e.time);
+				      			type.push(e.type);
+				      			succ_rate.push(Number(e.succ_rate));
+				      			att.push(Number(e.att));
+				      		});
+				      		mysqlDB.query('select system, th0, th1, th2, th3 from threshold_list where system like \'%SGW\';',
+									  function(error, results, fields) {
+									  	if (error) {
+								      		console.log(error);
+								      	} else {
+								      		results.forEach(function(e) {
+								      			system.push(e.system);
+								      			th0.push(e.th0);
+								      			th1.push(e.th1);
+								      			th2.push(e.th2);
+								      			th3.push(e.th3);
+								      			
+								      		    system.forEach(function(e,index){
+											    	if(system[index] == "LSGW"){
+											    		L_th0 = th0[index];
+											    		L_th1 = th1[index];
+											    		L_th2 = th2[index];
+											    		L_th3 = th3[index];
+											    	}
+											    	else if(system[index] == "SSGW"){
+											    		S_th0 = th0[index];
+											    		S_th1 = th1[index];
+											    		S_th2 = th2[index];
+											    		S_th3 = th3[index];
+											    	}
+											    	else if(system[index] == "VSGW"){
+											    		V_th0 = th0[index];
+											    		V_th1 = th1[index];
+											    		V_th2 = th2[index];
+											    		V_th3 = th3[index];
+								      		    	}
+								      		    });
+								      		});
+							      			var sql_insert = 'INSERT INTO alarm_list VALUE (?,?,?,?,?,?,?,\'N\');'
+							      			var sql_update = 'UPDATE auc_stat_list SET stat_mask=\'Y\' WHERE date=? and time=? and system_name=? and type=? and succ_rate=? and att=?'
+							      			
+							      			
+							      			system_name.forEach(function(e,index) {
+							      				if(system_type[index] == "L"){
+							      					switch(type[index]){
+														case "CSR" : 
+															if(Number(succ_rate[index]) < Number(L_th0) && Number(att[index]) > Number(L_th2)){
+										        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "CSR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("CSR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}													
+															break;
+														case "MBR" : 
+															if(Number(succ_rate[index]) < Number(L_th1) && Number(att[index]) > Number(L_th3)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "MBR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("MBR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+													}
+												}
+												if(system_type[index] == "S"){ 
+													//Standby
+													switch(type[index]){
+														case "CSR" : 
+															if(Number(succ_rate[index]) < Number(S_th0) && Number(att[index]) > Number(S_th2)){
+										        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "CSR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("CSR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}													
+															break;
+														case "MBR" : 
+															if(Number(succ_rate[index]) < Number(S_th1) && Number(att[index]) > Number(S_th3)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "MBR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("MBR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+													}
+												}
+												if(system_type[index] == "V"){ 
+													//Backup
+													switch(type[index]){
+														case "CSR" : 
+															if(Number(succ_rate[index]) < Number(V_th0) && Number(att[index]) > Number(V_th2)){
+										        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "CSR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("CSR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}													
+															break;
+														case "MBR" : 
+															if(Number(succ_rate[index]) < Number(V_th1) && Number(att[index]) > Number(V_th3)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "MBR","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("MBR 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+													}
+												}
+							      			});
+								      		//callback(null,json);
+							      			/**통계 Clear logic */
+							      			var sql_search_stat = 'select alarm_list.date,alarm_list.time,alarm_list.system_name,system_info_sgw.system_type, alarm_code, alarm_type from alarm_list, system_info_sgw where alarm_list.system_name = system_info_sgw.system_name and alarm_mask=\'N\' and alarm_type=\'STAT\';';
+							      			var sql_clear = 'UPDATE alarm_list SET alarm_mask=\'Y\' where date=? and time=? and system_name=? and alarm_code=?';
+							      					
+							      			mysqlDB.query(sql_search_stat,
+							      					function(error, results, fields){
+							      						if(results != ""){
+							      							console.log(results);
+							      							results.forEach(function(e) {
+							      								clear_sysname.push(e.system_name);
+							      								clear_date.push(e.date);
+							      								clear_time.push(e.time);
+							      								clear_systype.push(e.system_type);
+							      								clear_almcode.push(e.alarm_code);
+							      								clear_almtype.push(e.alarm_type);
+							      							});
+							      							
+							      							clear_sysname.forEach(function(e,index_c) {
+							      								system_name.forEach(function(e,index_s){
+							      									if(clear_sysname[index_c] == system_name[index_s] && clear_date[index_c] <= date[index_s] && clear_time[index_c] <= time[index_s]){
+							      										if(clear_systype[index_c] =='L'){
+													      					switch(clear_almcode[index_c]){
+																				case "CSR" : 
+																					if(Number(succ_rate[index_s]) > Number(L_th0) && Number(att[index_s]) > Number(L_th2)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "MBR" : 
+																					if(Number(succ_rate[index_s]) > Number(L_th1) && Number(att[index_s]) > Number(L_th3)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																			}
+							      										}
+							      										if(clear_systype[index_c] == "S"){
+							      											switch(clear_almcode[index_c]){
+																				case "CSR" : 
+																					if(Number(succ_rate[index_s]) > Number(S_th0) && Number(att[index_s]) > Number(S_th2)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "MBR" : 
+																					if(Number(succ_rate[index_s]) > Number(S_th1) && Number(att[index_s]) > Number(S_th3)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																			}
+																		}
+							      										if(clear_systype[index_c] == "V"){
+							      											switch(clear_almcode[index_c]){
+																				case "CSR" : 
+																					if(Number(succ_rate[index_s]) > Number(V_th0) && Number(att[index_s]) > Number(V_th2)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "MBR" : 
+																					if(Number(succ_rate[index_s]) > Number(V_th1) && Number(att[index_s]) > Number(V_th3)){
+																						var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																			}
+																		}
+																		
+																	}
+																	
+							      								})
+											      				
+											      			});
+							      					}else{
+							      						//alarm_list 테이블에 값 없을 시(통계로인한 장애 상황이 아닐 시)
+							      					}
+							      			})
+								      	}
+									  	
+							});
+				      	}
+					  	callback(null,system_name);
+				  });
+
+		},
+		// MME
+		function(callback){ 
+			  var system_name = [];
+			  var vendor = [];
+			  var system_type = [];
+			  var date = [];
+			  var time = [];
+			  var type = [];
+			  var succ_rate = [];
+			  var att = [];
+			  
+			  var system = [];
+			  var th0 = [];
+			  var th1 = [];
+			  var th2 = [];
+			  var th3 = [];
+			  var th4 = [];
+			  var th5 = [];
+			  var th6 = [];
+			  var th7 = [];
+			  var th8 = [];
+			  var th9 = [];
+			  var th10 = [];
+			  var th11 = [];
+			  var th12 = [];
+			  var th13 = [];
+    
+    
+			    var S_th0, S_th1, S_th2, S_th3, S_th4, S_th5, S_th6, S_th7, S_th8, S_th9, S_th10, S_th11, S_th12, S_th13;
+			    var E_th0, E_th1, E_th2, E_th3, E_th4, E_th5, E_th6, E_th7, E_th8, E_th9, E_th10, E_th11, E_th12, E_th13;
+			    var G_th0, G_th1, G_th2, G_th3, G_th4, G_th5, G_th6, G_th7, G_th8, G_th9, G_th10, G_th11, G_th12, G_th13;
+    
+    		  
+    		  var clear_sysname=[], clear_date=[], clear_time=[], clear_systype=[], clear_almcode=[], clear_almtype=[], clear_vendor=[];
+    		  
+    		   
+			
+			  mysqlDB.query('select mme_stat_list.system_name, system_info_mme.vendor, system_info_mme.system_type, mme_stat_list.date, mme_stat_list.time, mme_stat_list.type, mme_stat_list.succ_rate, mme_stat_list.att from mme_stat_list, system_info_mme where mme_stat_list.system_name = system_info_mme.system_name and mme_stat_list.stat_mask=\'N\' and mme_stat_list.date >= \''+ getPrevDate() + '\' and mme_stat_list.time >= \''+ getPrevTime() + '\';',
+					  function(error, results, fields) {
+					  	if (error) {
+				      		console.log(error);
+				      	} else {
+				      		results.forEach(function(e) {
+				      			system_name.push(e.system_name);
+			      				vendor.push(e.vendor);
+				      			system_type.push(e.system_type);
+				      			date.push(e.date);
+				      			time.push(e.time);
+				      			type.push(e.type);
+				      			succ_rate.push(Number(e.succ_rate));
+				      			att.push(Number(e.att));
+				      		});
+				      		mysqlDB.query('select system, th0, th1, th2, th3, th4, th5, th6, th7 from threshold_list where system like \'%MME\';',
+									  function(error, results, fields) {
+									  	if (error) {
+								      		console.log(error);
+								      	} else {
+								      		results.forEach(function(e) {
+								      			system.push(e.system);
+								      			th0.push(e.th0);
+								      			th1.push(e.th1);
+								      			th2.push(e.th2);
+								      			th3.push(e.th3);
+								      			th4.push(e.th4);
+								      			th5.push(e.th5);
+								      			th6.push(e.th6);
+								      			th7.push(e.th7);
+								      			th8.push(e.th8);
+								      			th9.push(e.th9);
+								      			th10.push(e.th10);
+								      			th11.push(e.th11);
+								      			th12.push(e.th12);
+								      			th13.push(e.th13);
+								      			
+								      		    system.forEach(function(e,index){
+											    	if(system[index] == "SMME"){
+											    		S_th0 = th0[index];
+											    		S_th1 = th1[index];
+											    		S_th2 = th2[index];
+											    		S_th3 = th3[index];
+											    		S_th4 = th4[index];
+											    		S_th5 = th5[index];
+											    		S_th6 = th6[index];
+											    		S_th7 = th7[index];
+											    		S_th8 = th8[index];
+											    		S_th9 = th9[index];
+											    		S_th10 = th10[index];
+											    		S_th11 = th11[index];
+											    		S_th12 = th12[index];
+											    		S_th13 = th13[index];
+											    	}
+											    	else if(system[index] == "EMME"){
+											    		E_th0 = th0[index];
+											    		E_th1 = th1[index];
+											    		E_th2 = th2[index];
+											    		E_th3 = th3[index];
+											    		E_th4 = th4[index];
+											    		E_th5 = th5[index];
+											    		E_th6 = th6[index];
+											    		E_th7 = th7[index];
+											    		E_th8 = th8[index];
+											    		E_th9 = th9[index];
+											    		E_th10 = th10[index];
+											    		E_th11 = th11[index];
+											    		E_th12 = th12[index];
+											    		E_th13 = th13[index];
+											    	}
+											    	else if(system[index] == "GMME"){
+											    		G_th0 = th0[index];
+											    		G_th1 = th1[index];
+											    		G_th2 = th2[index];
+											    		G_th3 = th3[index];
+											    		G_th4 = th4[index];
+											    		G_th5 = th5[index];
+											    		G_th6 = th6[index];
+											    		G_th7 = th7[index];
+											    		G_th8 = th8[index];
+											    		G_th9 = th9[index];
+											    		G_th10 = th10[index];
+											    		G_th11 = th11[index];
+											    		G_th12 = th12[index];
+											    		G_th13 = th13[index];
+								      		    	}
+								      		    });
+								      		});
+							      			var sql_insert = 'INSERT INTO alarm_list VALUE (?,?,?,?,?,?,?,\'N\');'
+							      			var sql_update = 'UPDATE mme_stat_list SET stat_mask=\'Y\' WHERE date=? and time=? and system_name=? and type=? and succ_rate=? and att=?'
+							      			
+							      			
+							      			system_name.forEach(function(e,index) {
+							      				if(vendor[index] == "S"){
+							      					switch(type[index]){
+														case "ATCH" : 
+															if(Number(succ_rate[index]) < Number(S_th0) && Number(att[index]) > Number(S_th7)){
+										        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "ATCH","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("ATCH 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}													
+															break;
+														case "SR_MO" : 
+															if(Number(succ_rate[index]) < Number(S_th1) && Number(att[index]) > Number(S_th8)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "SR_MO","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("SR_MO 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "SR_MT" : 
+															if(Number(succ_rate[index]) < Number(S_th2) && Number(att[index]) > Number(S_th9)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "SR_MT","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("SR_MT 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "CS_SR_MO" : 
+															if(Number(succ_rate[index]) < Number(S_th3) && Number(att[index]) > Number(S_th10)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "CS_SR_MO","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("CS_SR_MO 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "CS_SR_MT" : 
+															if(Number(succ_rate[index]) < Number(S_th4) && Number(att[index]) > Number(S_th11)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "CS_SR_MT","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("CS_SR_MT 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "TAU" : 
+															if(Number(succ_rate[index]) < Number(S_th5) && Number(att[index]) > Number(S_th12)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "TAU","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("TAU 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "PAG" : 
+															if(Number(succ_rate[index]) < Number(S_th6) && Number(att[index]) > Number(S_th13)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "PAG","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("PAG 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+													}
+												}
+												if(vendor[index] == "E"){ 
+													//Standby
+													switch(type[index]){
+														case "ATCH" : 
+															if(Number(succ_rate[index]) < Number(E_th0) && Number(att[index]) > Number(E_th7)){
+										        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "ATCH","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("ATCH 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}													
+															break;
+														case "SR_MO" : 
+															if(Number(succ_rate[index]) < Number(E_th1) && Number(att[index]) > Number(E_th8)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "SR_MO","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("SR_MO 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "SR_MT" : 
+															if(Number(succ_rate[index]) < Number(E_th2) && Number(att[index]) > Number(E_th9)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "SR_MT","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("SR_MT 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "CS_SR_MO" : 
+															if(Number(succ_rate[index]) < Number(E_th3) && Number(att[index]) > Number(E_th10)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "CS_SR_MO","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("CS_SR_MO 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "CS_SR_MT" : 
+															if(Number(succ_rate[index]) < Number(E_th4) && Number(att[index]) > Number(E_th11)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "CS_SR_MT","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("CS_SR_MT 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "TAU" : 
+															if(Number(succ_rate[index]) < Number(E_th5) && Number(att[index]) > Number(E_th12)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "TAU","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("TAU 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "PAG" : 
+															if(Number(succ_rate[index]) < Number(E_th6) && Number(att[index]) > Number(E_th13)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "PAG","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("PAG 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+													}
+												}
+												if(vendor[index] == "G"){ 
+													switch(type[index]){
+														case "ATCH" : 
+															if(Number(succ_rate[index]) < Number(G_th0) && Number(att[index]) > Number(G_th7)){
+										        				  var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "ATCH","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("ATCH 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}													
+															break;
+														case "SR_MO" : 
+															if(Number(succ_rate[index]) < Number(G_th1) && Number(att[index]) > Number(G_th8)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "SR_MO","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("SR_MO 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "SR_MT" : 
+															if(Number(succ_rate[index]) < Number(G_th2) && Number(att[index]) > Number(G_th9)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "SR_MT","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("SR_MT 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "CS_SR_MO" : 
+															if(Number(succ_rate[index]) < Number(G_th3) && Number(att[index]) > Number(G_th10)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "CS_SR_MO","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("CS_SR_MO 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "CS_SR_MT" : 
+															if(Number(succ_rate[index]) < Number(G_th4) && Number(att[index]) > Number(G_th11)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "CS_SR_MT","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("CS_SR_MT 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "TAU" : 
+															if(Number(succ_rate[index]) < Number(G_th5) && Number(att[index]) > Number(G_th12)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "TAU","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("TAU 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+														case "PAG" : 
+															if(Number(succ_rate[index]) < Number(G_th6) && Number(att[index]) > Number(G_th13)){
+																var params = [date[index], time[index], system_name[index], system_name[index]+"/"+type[index], "STAT", "PAG","Success Rate : "+succ_rate[index]];
+								  	       	         			  mysqlDB.query(sql_insert, params,
+								  	       	         				 function(error, results, fields) {
+												        	    		if (error) {
+												        	    			console.log(error);
+												        	    		} else {
+												        	    			var params = [date[index], time[index], system_name[index], type[index], succ_rate[index], att[index]];
+												        	    			mysqlDB.query(sql_update, params,
+												        	    					function(error, results, fields){
+														        	    				if (error) {
+																        	    			console.log(error);
+																        	    		} else {
+																        	    			console.log("PAG 성공");
+																        	    		}
+												        	    			});
+												        	    		}
+											        			     });
+															}
+															break;
+													}
+												}
+							      			});
+								      		//callback(null,json);
+							      			/**통계 Clear logic */
+							      			var sql_search_stat = 'select alarm_list.date,alarm_list.time,alarm_list.system_name, system_info_mme.vendor, system_info_mme.system_type, alarm_code, alarm_type from alarm_list, system_info_mme where alarm_list.system_name = system_info_mme.system_name and alarm_mask=\'N\' and alarm_type=\'STAT\';';
+							      			var sql_clear = 'UPDATE alarm_list SET alarm_mask=\'Y\' where date=? and time=? and system_name=? and alarm_code=?';
+							      					
+							      			mysqlDB.query(sql_search_stat,
+							      					function(error, results, fields){
+							      						if(results != ""){
+							      							console.log(results);
+							      							results.forEach(function(e) {
+							      								clear_sysname.push(e.system_name);
+							      								clear_vendor.push(e.vendor);
+							      								clear_date.push(e.date);
+							      								clear_time.push(e.time);
+							      								clear_systype.push(e.system_type);
+							      								clear_almcode.push(e.alarm_code);
+							      								clear_almtype.push(e.alarm_type);
+							      							});
+							      							
+							      							clear_sysname.forEach(function(e,index_c) {
+							      								system_name.forEach(function(e,index_s){
+							      									if(clear_sysname[index_c] == system_name[index_s] && clear_date[index_c] <= date[index_s] && clear_time[index_c] <= time[index_s]){
+							      										if(clear_vendor[index_c] =='S'){
+													      					switch(clear_almcode[index_c]){
+																				case "ATCH" : 
+																					if(Number(succ_rate[index_s]) > Number(S_th0) && Number(att[index_s]) > Number(S_th7)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "SR_MO" : 
+																					if(Number(succ_rate[index_s]) > Number(S_th1) && Number(att[index_s]) > Number(S_th8)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "SR_MT" : 
+																					if(Number(succ_rate[index_s]) > Number(S_th2) && Number(att[index_s]) > Number(S_th9)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "CS_SR_MO" : 
+																					if(Number(succ_rate[index_s]) > Number(S_th3) && Number(att[index_s]) > Number(S_th10)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "CS_SR_MT" : 
+																					if(Number(succ_rate[index_s]) > Number(S_th4) && Number(att[index_s]) > Number(S_th11)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "TAU" : 
+																					if(Number(succ_rate[index_s]) > Number(S_th5) && Number(att[index_s]) > Number(S_th12)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "PAG" : 
+																					if(Number(succ_rate[index_s]) > Number(S_th6) && Number(att[index_s]) > Number(S_th13)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																					
+																			}
+							      										}
+							      										if(clear_vendor[index_c] == "E"){
+							      											switch(clear_almcode[index_c]){
+																				case "ATCH" : 
+																					if(Number(succ_rate[index_s]) > Number(E_th0) && Number(att[index_s]) > Number(E_th7)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "SR_MO" : 
+																					if(Number(succ_rate[index_s]) > Number(E_th1) && Number(att[index_s]) > Number(E_th8)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "SR_MT" : 
+																					if(Number(succ_rate[index_s]) > Number(E_th2) && Number(att[index_s]) > Number(E_th9)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "CS_SR_MO" : 
+																					if(Number(succ_rate[index_s]) > Number(E_th3) && Number(att[index_s]) > Number(E_th10)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "CS_SR_MT" : 
+																					if(Number(succ_rate[index_s]) > Number(E_th4) && Number(att[index_s]) > Number(E_th11)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "TAU" : 
+																					if(Number(succ_rate[index_s]) > Number(E_th5) && Number(att[index_s]) > Number(E_th12)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "PAG" : 
+																					if(Number(succ_rate[index_s]) > Number(E_th6) && Number(att[index_s]) > Number(E_th13)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																			}
+																		}
+							      										if(clear_vendor[index_c] == "G"){
+							      											switch(clear_almcode[index_c]){
+																				case "ATCH" : 
+																					if(Number(succ_rate[index_s]) > Number(G_th0) && Number(att[index_s]) > Number(G_th7)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "SR_MO" : 
+																					if(Number(succ_rate[index_s]) > Number(G_th1) && Number(att[index_s]) > Number(G_th8)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "SR_MT" : 
+																					if(Number(succ_rate[index_s]) > Number(G_th2) && Number(att[index_s]) > Number(G_th9)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "CS_SR_MO" : 
+																					if(Number(succ_rate[index_s]) > Number(G_th3) && Number(att[index_s]) > Number(G_th10)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "CS_SR_MT" : 
+																					if(Number(succ_rate[index_s]) > Number(G_th4) && Number(att[index_s]) > Number(G_th11)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "TAU" : 
+																					if(Number(succ_rate[index_s]) > Number(G_th5) && Number(att[index_s]) > Number(G_th12)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																				case "PAG" : 
+																					if(Number(succ_rate[index_s]) > Number(G_th6) && Number(att[index_s]) > Number(G_th13)){
+																						  var params = [clear_date[index_c], clear_time[index_c], clear_sysname[index_c], clear_almcode[index_c]];
+														  	       	         			  mysqlDB.query(sql_clear, params,
+														  	       	         				 function(error, results, fields) {
+																		        	    		if (error) {
+																		        	    			console.log(error);
+																		        	    		} else {
+																		        	    			console.log("Clear 성공");
+																		        	    		}
+																	        			     });
+																					}
+																					break;
+																			}
+																		}
+																		
 																	}
 																	
 							      								})
