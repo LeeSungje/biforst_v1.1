@@ -2590,20 +2590,20 @@ router.get('/v1/stats', function(req, res, next) {
 								      			th4.push(e.th4);
 								      			th5.push(e.th5);
 				
-								      			A21_th0= th0[index];
-								      			A21_th1= th1[index];
-								      			A21_th4= th4[index];
-								      			A21_th5= th5[index];
+								      			A21_th0= th0;
+								      			A21_th1= th1;
+								      			A21_th4= th4;
+								      			A21_th5= th5;
 					
-								      			A22_th2= th2[index]; //--> AUC22는 임계치 값 높아서 AUC21과 다른 값 가져옴
-								      			A22_th3= th3[index];
-								      			A22_th4= th4[index];
-								      			A22_th5= th5[index];
+								      			A22_th2= th2; //--> AUC22는 임계치 값 높아서 AUC21과 다른 값 가져옴
+								      			A22_th3= th3;
+								      			A22_th4= th4;
+								      			A22_th5= th5;
 					
-								      			A25_th0= th0[index];
-								      			A25_th1= th1[index];
-								      			A25_th4= th4[index];
-								      			A25_th5= th5[index];
+								      			A25_th0= th0;
+								      			A25_th1= th1;
+								      			A25_th4= th4;
+								      			A25_th5= th5;
 										
 								      			
 								      		});
