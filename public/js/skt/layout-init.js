@@ -209,6 +209,20 @@ function ajaxUncollected(url){
 	    var location_UCMS = json.result[7].location_UCMS;
 	    var building_UCMS = json.result[7].building_UCMS;
 	    var floor_UCMS = json.result[7].floor_UCMS;
+
+		//fallback(8) MECGW 정보
+	    var system_name_MECGW = json.result[8].system_name_MECGW;
+	    var system_type_MECGW = json.result[8].system_type_MECGW;
+	    var location_MECGW = json.result[8].location_MECGW;
+	    var building_MECGW = json.result[8].building_MECGW;
+	    var floor_MECGW = json.result[8].floor_MECGW;
+
+	    //fallback(9) MSS 정보
+	    var system_name_MSS = json.result[9].system_name_MSS;
+	    var system_type_MSS = json.result[9].system_type_MSS;
+	    var location_MSS = json.result[9].location_MSS;
+	    var building_MSS = json.result[9].building_MSS;
+	    var floor_MSS = json.result[9].floor_MSS;
 	    
 	
 	    console.log(json.result[3]);
@@ -346,6 +360,38 @@ function ajaxUncollected(url){
 	        $(".skt-modal-location-container").append(location_UCMSHtml);
 	        $(".skt-modal-building-container").append(building_UCMSHtml);
 	        $(".skt-modal-floor-container").append(floor_UCMSHtml);
+	      });
+	    
+
+	    system_name_MECGW.forEach(function(e,index){
+			uncollected_count++;
+	        var system_name_MECGWHtml = "<p class='skt-uncollected-txt align-middle'>"+system_name_MECGW[index]+"</p>"; 
+	        var system_type_MECGWHtml = "<p class='skt-uncollected-txt align-middle'>"+system_type_MECGW[index]+"</p>";
+	        var location_MECGWHtml = "<p class='skt-uncollected-txt align-middle'>"+location_MECGW[index]+"</p>";
+	        var building_MECGWHtml = "<p class='skt-uncollected-txt align-middle'>"+building_MECGW[index]+"</p>";
+			var floor_MECGWHtml = "<p class='skt-uncollected-txt align-middle'>"+floor_MECGW[index]+"</p>";
+			
+	        $(".skt-modal-system-container").append(system_name_MECGWHtml);
+	        $(".skt-modal-type-container").append(system_type_MECGWHtml);
+	        $(".skt-modal-location-container").append(location_MECGWHtml);
+	        $(".skt-modal-building-container").append(building_MECGWHtml);
+	        $(".skt-modal-floor-container").append(floor_MECGWHtml);
+	      });
+	    
+
+	    system_name_MSS.forEach(function(e,index){
+			uncollected_count++;
+	        var system_name_MSSHtml = "<p class='skt-uncollected-txt align-middle'>"+system_name_MSS[index]+"</p>"; 
+	        var system_type_MSSHtml = "<p class='skt-uncollected-txt align-middle'>"+system_type_MSS[index]+"</p>";
+	        var location_MSSHtml = "<p class='skt-uncollected-txt align-middle'>"+location_MSS[index]+"</p>";
+	        var building_MSSHtml = "<p class='skt-uncollected-txt align-middle'>"+building_MSS[index]+"</p>";
+			var floor_MSSHtml = "<p class='skt-uncollected-txt align-middle'>"+floor_MSS[index]+"</p>";
+			
+	        $(".skt-modal-system-container").append(system_name_MSSHtml);
+	        $(".skt-modal-type-container").append(system_type_MSSHtml);
+	        $(".skt-modal-location-container").append(location_MSSHtml);
+	        $(".skt-modal-building-container").append(building_MSSHtml);
+	        $(".skt-modal-floor-container").append(floor_MSSHtml);
 	      });
 
 		

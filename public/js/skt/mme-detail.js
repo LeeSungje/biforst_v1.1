@@ -169,7 +169,7 @@ function ajaxShowMmeDetail(url){
     		S_th12 = th12[index];
     		S_th13 = th13[index];
     	}
-    	else if(system_f3[index] == "EMMME"){
+    	else if(system_f3[index] == "EMME"){
     		E_th0 = th0[index];
     		E_th1 = th1[index];
     		E_th2 = th2[index];
@@ -185,7 +185,7 @@ function ajaxShowMmeDetail(url){
     		E_th12 = th12[index];
     		E_th13 = th13[index];
     	}       
-    	else if(system_f3[index] == "GMMME"){
+    	else if(system_f3[index] == "GMME"){
     		G_th0 = th0[index];
     		G_th1 = th1[index];
     		G_th2 = th2[index];
@@ -288,7 +288,7 @@ function ajaxShowMmeDetail(url){
 				if(vendor[index] == "E"){
 					console.log("시스템명 : "+vendor[index]);
 						switch(type[index]){
-							case "ATT" : 
+							case "ATCH" : 
 								$(".stat-panel").append(s_format_ATT);
 								$(".alarm-panel").append(a_format_EMME);
 								$("#ATTstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
@@ -297,28 +297,28 @@ function ajaxShowMmeDetail(url){
 							      	  //insertStatData(system_namef1[index], succ_rate[index]);
 								}
 								break;
-							case "SRMO" : 
+							case "SR_MO" : 
 								$(".stat-panel").append(s_format_SRMO);
 								$("#SRMOstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
 								if(succ_rate[index] < E_th1 && att[index] > E_th8){
 							      	  $("#SRMOstat").parents(".mme-stat-panel").addClass("alarm-twinkle");
 								}
 								break;
-							case "SRMT" : 
+							case "SR_MT" : 
 								$(".stat-panel").append(s_format_SRMT);
 								$("#SRMTstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
 								if(succ_rate[index] < E_th2 && att[index] > E_th9){
 							      	  $("#SRMTstat").parents(".mme-stat-panel").addClass("alarm-twinkle");
 								}
 								break;
-							case "ESRMO" : 
+							case "CS_SR_MO" : 
 								$(".stat-panel").append(s_format_ESRMO);
 								$("#ESRMOstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
 								if(succ_rate[index] < E_th3 && att[index] > E_th10){
 							      	  $("#ESRMOstat").parents(".mme-stat-panel").addClass("alarm-twinkle");
 								}
 								break;
-							case "ESRMT" : 
+							case "CS_SR_MT" : 
 								$(".stat-panel").append(s_format_ESRMT);
 								$("#ESRMTstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
 								if(succ_rate[index] < E_th4 && att[index] > E_th11){
@@ -344,7 +344,7 @@ function ajaxShowMmeDetail(url){
 				if(vendor[index] == "S"){
 					console.log("시스템명 : "+vendor[index]);
 						switch(type[index]){
-							case "ATT" : 
+							case "ATCH" : 
 								$(".stat-panel").append(s_format_ATT);
 								$(".alarm-panel").append(a_format_SMME);
 								$("#ATTstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
@@ -353,28 +353,28 @@ function ajaxShowMmeDetail(url){
 							      	  //insertStatData(system_namef1[index], succ_rate[index]);
 								}
 								break;
-							case "SRMO" : 
+							case "SR_MO" : 
 								$(".stat-panel").append(s_format_SRMO);
 								$("#SRMOstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
 								if(succ_rate[index] < S_th1 && att[index] > S_th8){
 							      	  $("#SRMOstat").parents(".mme-stat-panel").addClass("alarm-twinkle");
 								}
 								break;
-							case "SRMT" : 
+							case "SR_MT" : 
 								$(".stat-panel").append(s_format_SRMT);
 								$("#SRMTstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
 								if(succ_rate[index] < S_th2 && att[index] > S_th9){
 							      	  $("#SRMTstat").parents(".mme-stat-panel").addClass("alarm-twinkle");
 								}
 								break;
-							case "ESRMO" : 
+							case "CS_SR_MO" : 
 								$(".stat-panel").append(s_format_ESRMO);
 								$("#ESRMOstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
 								if(succ_rate[index] < S_th3 && att[index] > S_th10){
 							      	  $("#ESRMOstat").parents(".mme-stat-panel").addClass("alarm-twinkle");
 								}
 								break;
-							case "ESRMT" : 
+							case "CS_SR_MT" : 
 								$(".stat-panel").append(s_format_ESRMT);
 								$("#ESRMTstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
 								if(succ_rate[index] < S_th4 && att[index] > S_th11){
@@ -400,7 +400,7 @@ function ajaxShowMmeDetail(url){
 				if(vendor[index] == "G"){
 					console.log("시스템명 : "+vendor[index]);
 						switch(type[index]){
-							case "ATT" : 
+							case "ATCH" : 
 								$(".stat-panel").append(s_format_ATT);
 								$(".alarm-panel").append(a_format_GMME);
 								$("#ATTstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
@@ -409,28 +409,28 @@ function ajaxShowMmeDetail(url){
 							      	  //insertStatData(system_namef1[index], succ_rate[index]);
 								}
 								break;
-							case "SRMO" : 
+							case "SR_MO" : 
 								$(".stat-panel").append(s_format_SRMO);
 								$("#SRMOstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
 								if(succ_rate[index] < G_th1 && att[index] > G_th8){
 							      	  $("#SRMOstat").parents(".mme-stat-panel").addClass("alarm-twinkle");
 								}
 								break;
-							case "SRMT" : 
+							case "SR_MT" : 
 								$(".stat-panel").append(s_format_SRMT);
 								$("#SRMTstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
 								if(succ_rate[index] < G_th2 && att[index] > G_th9){
 							      	  $("#SRMTstat").parents(".mme-stat-panel").addClass("alarm-twinkle");
 								}
 								break;
-							case "ESRMO" : 
+							case "CS_SR_MO" : 
 								$(".stat-panel").append(s_format_ESRMO);
 								$("#ESRMOstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
 								if(succ_rate[index] < G_th3 && att[index] > G_th10){
 							      	  $("#ESRMOstat").parents(".mme-stat-panel").addClass("alarm-twinkle");
 								}
 								break;
-							case "ESRMT" : 
+							case "CS_SR_MT" : 
 								$(".stat-panel").append(s_format_ESRMT);
 								$("#ESRMTstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
 								if(succ_rate[index] < G_th4 && att[index] > G_th11){

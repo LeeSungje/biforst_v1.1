@@ -197,7 +197,7 @@ function ajaxShowMSSDetail(url){
 			if(system_namef1[index] == sys_num ){
 				if( getPrevDateTime() < date[index]+" "+time[index] && getDateTime() > date[index]+" "+time[index]){
 						switch(type[index]){
-							case "REGI" : 
+							case "REG" : 
 								$("#REGIstat").append("<span class='sys-txt-value'>"+succ_rate[index]+"%</span>");
 								if(succ_rate[index] < T_th0 && att[index] > T_th4){
 							      	  $("#REGIstat").parents(".ims-stat-panel").addClass("alarm-twinkle");
